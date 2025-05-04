@@ -105,7 +105,7 @@ end
 
 function UILib.Tab:CreateCheckbox(name, callback)
     local CheckboxFrame = Instance.new("Frame", self.Page)
-    CheckboxFrame.Size = UDim2.new(1.1, 0, 0, 40)
+    CheckboxFrame.Size = UDim2.new(1, 0, 0, 40)
     CheckboxFrame.BackgroundTransparency = 1
 
     Instance.new("UIStroke", CheckboxFrame).Color = Color3.fromRGB(60, 60, 60)
@@ -140,5 +140,13 @@ function UILib.Tab:CreateCheckbox(name, callback)
             callback(active)
         end
     end)
+
+    -
+    if not self.Page:FindFirstChild("UIListLayout") then
+        local Layout = Instance.new("UIListLayout", self.Page)
+        Layout.FillDirection = Enum.FillDirection.Vertical
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
 end
 return UILib
