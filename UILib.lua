@@ -141,7 +141,7 @@ function UILib.Tab:CreateCheckbox(name, callback)
         end
     end)
 
-    -
+    
     if not self.Page:FindFirstChild("UIListLayout") then
         local Layout = Instance.new("UIListLayout", self.Page)
         Layout.FillDirection = Enum.FillDirection.Vertical
