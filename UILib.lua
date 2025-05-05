@@ -149,4 +149,144 @@ function UILib.Tab:CreateCheckbox(name, callback)
         Layout.SortOrder = Enum.SortOrder.LayoutOrder
     end
 end
+function UILib.Tab:CreateButton(name, callback)
+    if not self.Page:FindFirstChild("UIListLayout") then
+        local Layout = Instance.new("UIListLayout", self.Page)
+        Layout.FillDirection = Enum.FillDirection.Vertical
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
+    
+    
+    local Button = Instance.new("TextButton", self.Page)
+    Button.Size = UDim2.new(1, 0, 0, 40)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Button.Text = name
+    Button.Font = Enum.Font.Code
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 14
+    Button.AutoButtonColor = false
+    Button.TextXAlignment = Enum.TextXAlignment.Left
+
+    Instance.new("UIStroke", Button).Color = Color3.fromRGB(60, 60, 60)
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+
+    Button.MouseButton1Click:Connect(function()
+        if callback then
+            callback()
+        end
+    end)
+end
+function UILib.Tab:CreateSlider(title, min, max, default, callback)
+    if not self.Page:FindFirstChild("UIListLayout") then
+        local Layout = Instance.new("UIListLayout", self.Page)
+        Layout.FillDirection = Enum.FillDirection.Vertical
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
+
+    local SliderFrame = Instance.new("Frame", self.Page)
+    SliderFrame.Size = UDim2.new(1, 0, 0, 50)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+    local Label = Instance.new("TextLabel", SliderFrame)
+    Label.Size = UDim2.new(1, 0, 0, 20)
+    Label.Text = title .. ": " .. default
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local Bar = Instance.new("Frame", SliderFrame)
+    Bar.Size = UDim2.new(1, 0, 0, 10)
+    Bar.Position = UDim2.new(0, 0, 0, 25)
+    Bar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    local Handle = Instance.new("Frame", Bar)
+    Handle.Size = UDim2.new(0, 10, 1, 0)
+    Handle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+    local function updateSlider(position)
+        local percent = math.clamp(position.X / Bar.AbsoluteSize.X, 0, 1)
+        local value = math.floor(min + (max - min) * percent)
+        Label.Text = title .. ": " .. value
+        Handle.Position = UDim2.new(percent, -5, 0, 0)
+        if callback then
+            callback(value)
+        end
+    end
+
+    Bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            updateSlider(input.Position)
+        end
+    end)
+
+    Bar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            updateSlider(input.Position)
+        end
+    end)
+end
+function UILib.Tab:CreateDropdown(title, choices, defaultValue, callback)
+    if not self.Page:FindFirstChild("UIListLayout") then
+        local Layout = Instance.new("UIListLayout", self.Page)
+        Layout.FillDirection = Enum.FillDirection.Vertical
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
+
+    local DropdownFrame = Instance.new("Frame", self.Page)
+    DropdownFrame.Size = UDim2.new(1, 0, 0, 50)
+    DropdownFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+    local Label = Instance.new("TextLabel", DropdownFrame)
+    Label.Size = UDim2.new(1, 0, 0, 20)
+    Label.Text = title .. ": " .. defaultValue
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+
+    local DropdownButton = Instance.new("TextButton", DropdownFrame)
+    DropdownButton.Size = UDim2.new(1, 0, 0, 20)
+    DropdownButton.Position = UDim2.new(0, 0, 0, 25)
+    DropdownButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    DropdownButton.Text = "▼ Select Option"
+    DropdownButton.Font = Enum.Font.Code
+    DropdownButton.TextSize = 14
+    DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local OptionsList = Instance.new("Frame", DropdownFrame)
+    OptionsList.Size = UDim2.new(1, 0, 0, #choices * 25)
+    OptionsList.Position = UDim2.new(0, 0, 1, 0)
+    OptionsList.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    OptionsList.Visible = false
+
+    local Layout = Instance.new("UIListLayout", OptionsList)
+    Layout.FillDirection = Enum.FillDirection.Vertical
+    Layout.Padding = UDim.new(0, 2)
+
+    for _, choice in ipairs(choices) do
+        local OptionButton = Instance.new("TextButton", OptionsList)
+        OptionButton.Size = UDim2.new(1, 0, 0, 20)
+        OptionButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        OptionButton.Text = choice
+        OptionButton.Font = Enum.Font.Code
+        OptionButton.TextSize = 14
+        OptionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+        OptionButton.MouseButton1Click:Connect(function()
+            Label.Text = title .. ": " .. choice
+            OptionsList.Visible = false
+            if callback then
+                callback(choice)
+            end
+        end)
+    end
+
+    DropdownButton.MouseButton1Click:Connect(function()
+        OptionsList.Visible = not OptionsList.Visible
+    end)
+end
 return UILib
