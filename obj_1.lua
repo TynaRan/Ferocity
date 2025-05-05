@@ -340,7 +340,8 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
     else
         notify("Fly disabled")
         vfly = false
-
+        humanoid.PlatformStand = false
+            
         local root = getRoot(Players.LocalPlayer.Character)
         if root then
             if root:FindFirstChild(velocityHandlerName) then
