@@ -480,18 +480,6 @@ end
 local crosshairGui = drawCrosshair()
 local presetLine = createPresetLine()
 
-TabMisc:CreateCheckbox("Stable Camera", function(state)
-    local player = game.Players.LocalPlayer
-    if state then
-        RunService.RenderStepped:Connect(function()
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                camera.CameraSubject = player.Character:FindFirstChild("HumanoidRootPart")
-                camera.CameraType = Enum.CameraType.Custom
-                camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, camera.Focus.Position), 0.2)
-            end
-        end)
-    end
-end)
 
 TabMisc:CreateCheckbox("Noclip", function(state)
     local player = game.Players.LocalPlayer
@@ -531,10 +519,31 @@ TabMisc:CreateCheckbox("Aim NPC", function(state)
     end
 end)
 
-TabMisc:CreateCheckbox("Third-Person Reset(TEST)", function(state)
-    local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local camera = workspace.CurrentCamera
+
+TabMisc:CreateCheckbox("Third-Person Stable Camera", function(state)
+    local player = Players.LocalPlayer
     if state then
-        camera.CameraSubject = player.Character:FindFirstChildWhichIsA("Humanoid")
+        local cameraPart = Instance.new("Part")
+        cameraPart.Size = Vector3.new(1, 1, 1)
+        cameraPart.Transparency = 1
+        cameraPart.CanCollide = false
+        cameraPart.Anchored = true
+        cameraPart.Parent = workspace
+
+        RunService.RenderStepped:Connect(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local root = player.Character:FindFirstChild("HumanoidRootPart")
+                cameraPart.Position = root.Position - root.CFrame.LookVector * 3 + Vector3.new(0, 2, 0)
+                camera.CameraSubject = cameraPart
+                camera.CameraType = Enum.CameraType.Custom
+                camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, camera.Focus.Position), 0.2)
+            end
+        end)
+    else
+        camera.CameraSubject = Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
         camera.CameraType = Enum.CameraType.Custom
     end
 end)
