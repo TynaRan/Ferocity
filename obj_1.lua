@@ -1,5 +1,5 @@
 local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/TynaRan/Ferocity/refs/heads/main/UILib.lua"))()
-UILib:CreateWindow("Survive to Seventh Day")
+UILib:CreateWindow("XCreepy Edition")
 
 local TabAuto = UILib.Window:CreateTab("Automatic")
 local TabESP = UILib.Window:CreateTab("ESP Visual")
@@ -86,16 +86,28 @@ TabAuto:CreateCheckbox("Modify ProximityPrompt", function(state)
     end
 end)
 
-TabAuto:CreateCheckbox("fire proximityprompt", function(state)
+TabAuto:CreateCheckbox("Auto Fire ProximityPrompt", function(state)
     if state then
         notify("proximityprompt firing enabled")
         while state do
+            local closestPrompt = nil
+            local closestDistance = math.huge
+
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("ProximityPrompt") then
-                    if string.find(string.lower(obj.Name), "prompt") then
-                        fireproximityprompt(obj)
+                    local playerCFrame = plr.Character.HumanoidRootPart.CFrame
+                    local promptCFrame = obj.Parent.CFrame
+                    local distance = (playerCFrame.Position - promptCFrame.Position).Magnitude
+
+                    if distance < closestDistance then
+                        closestPrompt = obj
+                        closestDistance = distance
                     end
                 end
+            end
+
+            if closestPrompt then
+                fireproximityprompt(closestPrompt)
             end
             task.wait(0.1)
         end
