@@ -257,7 +257,7 @@ local function getRoot(character)
     return character and character:FindFirstChild("HumanoidRootPart")
 end
 
-TabAuto:CreateCheckbox("Fly (IY)", function(state)
+TabMisc:CreateCheckbox("Fly (IY)", function(state)
     vfly = state
     if state then
         notify("Fly enabled")
