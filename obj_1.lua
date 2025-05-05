@@ -86,20 +86,21 @@ TabAuto:CreateCheckbox("Modify ProximityPrompt", function(state)
     end
 end)
 
-TabAuto:CreateCheckbox("Fire ProximityPrompt", function(state)
+TabAuto:CreateCheckbox("fire proximityprompt", function(state)
     if state then
-        notify("ProximityPrompt Firing Enabled")
+        notify("proximityprompt firing enabled")
         while state do
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("ProximityPrompt") then
-                    local promptName = obj.Name 
-                    fireProximityPrompt(obj)
+                    if string.find(string.lower(obj.Name), "prompt") then
+                        fireproximityprompt(obj)
+                    end
                 end
             end
             task.wait(0.1)
         end
     else
-        notify("Fire Disabled")
+        notify("fire disabled")
     end
 end)
 local function highlightRootObjects()
