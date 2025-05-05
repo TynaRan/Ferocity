@@ -287,22 +287,18 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
         end
 
         mfly1 = speaker.CharacterAdded:Connect(function()
-            task.wait()
-            root = getRoot(speaker.Character)
-            if root then
-                local bv = Instance.new("BodyVelocity")
-                bv.Name = velocityHandlerName
-                bv.Parent = root
-                bv.MaxForce = v3zero
-                bv.Velocity = v3zero
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = velocityHandlerName
+            bv.Parent = root
+            bv.MaxForce = v3zero
+            bv.Velocity = v3zero
 
-                local bg = Instance.new("BodyGyro")
-                bg.Name = gyroHandlerName
-                bg.Parent = root
-                bg.MaxTorque = v3inf
-                bg.P = 1000
-                bg.D = 50
-            end
+            local bg = Instance.new("BodyGyro")
+            bg.Name = gyroHandlerName
+            bg.Parent = root
+            bg.MaxTorque = v3inf
+            bg.P = 1000
+            bg.D = 50
         end)
 
         mfly2 = RunService.RenderStepped:Connect(function()
@@ -310,21 +306,30 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
 
             root = getRoot(speaker.Character)
             camera = workspace.CurrentCamera
-            if speaker.Character and root and root:FindFirstChild(velocityHandlerName) and root:FindFirstChild(gyroHandlerName) then
+            if speaker.Character:FindFirstChildWhichIsA("Humanoid") and root and root:FindFirstChild(velocityHandlerName) and root:FindFirstChild(gyroHandlerName) then
                 local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
                 local VelocityHandler = root:FindFirstChild(velocityHandlerName)
                 local GyroHandler = root:FindFirstChild(gyroHandlerName)
 
                 VelocityHandler.MaxForce = v3inf
                 GyroHandler.MaxTorque = v3inf
-                humanoid.PlatformStand = true
-                GyroHandler.CFrame = camera.CFrame
+                if not vfly then humanoid.PlatformStand = true end
+                GyroHandler.CFrame = camera.CoordinateFrame
                 VelocityHandler.Velocity = v3none
 
                 local direction = controlModule:GetMoveVector()
-                VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.RightVector * (direction.X * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
-                VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.UpVector * (direction.Y * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
-                VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.LookVector * (direction.Z * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
+                if direction.X > 0 then
+                    VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.RightVector * (direction.X * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
+                end
+                if direction.X < 0 then
+                    VelocityHandler.Velocity = VelocityHandler.Velocity + camera.CFrame.RightVector * (direction.X * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
+                end
+                if direction.Z > 0 then
+                    VelocityHandler.Velocity = VelocityHandler.Velocity - camera.CFrame.LookVector * (direction.Z * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
+                end
+                if direction.Z < 0 then
+                    VelocityHandler.Velocity = VelocityHandler.Velocity - camera.CFrame.LookVector * (direction.Z * ((vfly and vehicleflyspeed or iyflyspeed) * 50))
+                end
             end
         end)
 
@@ -335,11 +340,13 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
         if mfly2 then mfly2:Disconnect() end
     end
 end)
-
 local plr = game.Players.LocalPlayer
 local lastPlayerPosition
+local scrapCollectionActive = false
 
 TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
+    scrapCollectionActive = state
+
     if state then
         local character = plr.Character
         if character and character:FindFirstChild("HumanoidRootPart") then
@@ -347,33 +354,35 @@ TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
             notify("Position saved - Scrap collection ACTIVATED")
         end
 
-        while state do
-            local rootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-            if rootPart then
-                local nearestScrap = nil
-                local minDistance = math.huge
+        task.spawn(function()
+            while scrapCollectionActive do
+                local rootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    local nearestScrap = nil
+                    local minDistance = math.huge
 
-                for _, item in pairs(workspace:GetDescendants()) do
-                    if item:IsA("BasePart") and string.lower(item.Name) == "defaultmaterial10" then
-                        local distance = (rootPart.Position - item.Position).Magnitude
-                        if distance < minDistance then
-                            nearestScrap = item
-                            minDistance = distance
+                    for _, item in pairs(workspace:GetDescendants()) do
+                        if item:IsA("BasePart") and string.lower(item.Name) == "defaultmaterial10" then
+                            local distance = (rootPart.Position - item.Position).Magnitude
+                            if distance < minDistance then
+                                nearestScrap = item
+                                minDistance = distance
+                            end
+                        end
+                    end
+
+                    if nearestScrap then
+                        rootPart.CFrame = nearestScrap.CFrame
+                        for _, prompt in pairs(nearestScrap:GetDescendants()) do
+                            if prompt:IsA("ProximityPrompt") then
+                                fireproximityprompt(prompt)
+                            end
                         end
                     end
                 end
-
-                if nearestScrap then
-                    rootPart.CFrame = nearestScrap.CFrame
-                    for _, prompt in pairs(nearestScrap:GetDescendants()) do
-                        if prompt:IsA("ProximityPrompt") then
-                            fireproximityprompt(prompt)
-                        end
-                    end
-                end
+                task.wait(0.1)
             end
-            task.wait(0.1)
-        end
+        end)
     else
         notify("Scrap collection DEACTIVATED")
         if lastPlayerPosition then
