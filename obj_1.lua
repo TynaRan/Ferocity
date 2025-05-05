@@ -221,3 +221,38 @@ TabMisc:CreateInput("Set Speed", "Enter speed value...", function(v)
         notify("New Speed: " .. speedValue)
     end
 end)
+TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
+    if state then
+        notify("Scrap collection enabled")
+
+        while state do
+            local playerRoot = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+            if playerRoot then
+                local closestMaterial = nil
+                local closestDistance = math.huge
+
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") and string.lower(obj.Name) == "defaultmaterial10" then
+                        local distance = (playerRoot.Position - obj.Position).Magnitude
+                        if distance < closestDistance then
+                            closestMaterial = obj
+                            closestDistance = distance
+                        end
+                    end
+                end
+
+                if closestMaterial then
+                    playerRoot.CFrame = closestMaterial.CFrame
+                    for _, prompt in pairs(closestMaterial:GetDescendants()) do
+                        if prompt:IsA("ProximityPrompt") then
+                            fireproximityprompt(prompt)
+                        end
+                    end
+                end
+            end
+            task.wait(0.1)
+        end
+    else
+        notify("Scrap collection disabled")
+    end
+end)
