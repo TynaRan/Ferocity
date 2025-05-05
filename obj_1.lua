@@ -287,18 +287,22 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
         end
 
         mfly1 = speaker.CharacterAdded:Connect(function()
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = velocityHandlerName
-            bv.Parent = root
-            bv.MaxForce = v3zero
-            bv.Velocity = v3zero
+            task.wait()
+            root = getRoot(speaker.Character)
+            if root then
+                local bv = Instance.new("BodyVelocity")
+                bv.Name = velocityHandlerName
+                bv.Parent = root
+                bv.MaxForce = v3zero
+                bv.Velocity = v3zero
 
-            local bg = Instance.new("BodyGyro")
-            bg.Name = gyroHandlerName
-            bg.Parent = root
-            bg.MaxTorque = v3inf
-            bg.P = 1000
-            bg.D = 50
+                local bg = Instance.new("BodyGyro")
+                bg.Name = gyroHandlerName
+                bg.Parent = root
+                bg.MaxTorque = v3inf
+                bg.P = 1000
+                bg.D = 50
+            end
         end)
 
         mfly2 = RunService.RenderStepped:Connect(function()
@@ -306,15 +310,15 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
 
             root = getRoot(speaker.Character)
             camera = workspace.CurrentCamera
-            if speaker.Character:FindFirstChildWhichIsA("Humanoid") and root and root:FindFirstChild(velocityHandlerName) and root:FindFirstChild(gyroHandlerName) then
+            if speaker.Character and root and root:FindFirstChild(velocityHandlerName) and root:FindFirstChild(gyroHandlerName) then
                 local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
                 local VelocityHandler = root:FindFirstChild(velocityHandlerName)
                 local GyroHandler = root:FindFirstChild(gyroHandlerName)
 
                 VelocityHandler.MaxForce = v3inf
                 GyroHandler.MaxTorque = v3inf
-                if not vfly then humanoid.PlatformStand = true end
-                GyroHandler.CFrame = camera.CoordinateFrame
+                humanoid.PlatformStand = true
+                GyroHandler.CFrame = camera.CFrame
                 VelocityHandler.Velocity = v3none
 
                 local direction = controlModule:GetMoveVector()
@@ -336,6 +340,17 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
     else
         notify("Fly disabled")
         vfly = false
+
+        local root = getRoot(Players.LocalPlayer.Character)
+        if root then
+            if root:FindFirstChild(velocityHandlerName) then
+                root:FindFirstChild(velocityHandlerName):Destroy()
+            end
+            if root:FindFirstChild(gyroHandlerName) then
+                root:FindFirstChild(gyroHandlerName):Destroy()
+            end
+        end
+
         if mfly1 then mfly1:Disconnect() end
         if mfly2 then mfly2:Disconnect() end
     end
