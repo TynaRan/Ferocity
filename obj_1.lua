@@ -236,7 +236,7 @@ TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
 
                 for _, obj in pairs(workspace:GetDescendants()) do
                     if obj:IsA("BasePart") and string.lower(obj.Name) == "defaultmaterial10" then
-                        local distance = (playerRoot.Position - obj.Position).Magnitude
+                        local distance = (playerRoot.CFrame.Position - obj.CFrame.Position).Magnitude
                         if distance < closestDistance then
                             closestMaterial = obj
                             closestDistance = distance
@@ -245,7 +245,7 @@ TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
                 end
 
                 if closestMaterial then
-                    closestMaterial.CFrame = playerRoot.CFrame
+                    playerRoot.CFrame = closestMaterial.CFrame
                     for _, prompt in pairs(closestMaterial:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
                             fireproximityprompt(prompt)
