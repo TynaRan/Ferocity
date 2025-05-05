@@ -156,21 +156,27 @@ function UILib.Tab:CreateButton(name, callback)
         Layout.Padding = UDim.new(0, 5)
         Layout.SortOrder = Enum.SortOrder.LayoutOrder
     end
-    
-    
-    local Button = Instance.new("TextButton", self.Page)
-    Button.Size = UDim2.new(1, 0, 0, 40)
-    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    local ButtonFrame = Instance.new("Frame", self.Page)
+    ButtonFrame.Size = UDim2.new(1, 0, 0, 40)
+    ButtonFrame.BackgroundTransparency = 1
+
+    local Stroke = Instance.new("UIStroke", ButtonFrame)
+    Stroke.Color = Color3.fromRGB(60, 60, 60)
+    Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local Corner = Instance.new("UICorner", ButtonFrame)
+    Corner.CornerRadius = UDim.new(0, 6)
+
+    local Button = Instance.new("TextButton", ButtonFrame)
+    Button.Size = UDim2.new(1, 0, 1, 0)
+    Button.BackgroundTransparency = 1
     Button.Text = name
     Button.Font = Enum.Font.Code
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 14
-    Button.AutoButtonColor = false
-    Button.BackgroundTransparency = 1
     Button.TextXAlignment = Enum.TextXAlignment.Left
-
-    Instance.new("UIStroke", Button).Color = Color3.fromRGB(60, 60, 60)
-    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+    Button.AutoButtonColor = false
 
     Button.MouseButton1Click:Connect(function()
         if callback then
@@ -190,6 +196,16 @@ function UILib.Tab:CreateSlider(title, min, max, default, callback)
     SliderFrame.Size = UDim2.new(1, 0, 0, 50)
     SliderFrame.BackgroundTransparency = 1
 
+    local Stroke = Instance.new("UIStroke", SliderFrame)
+    Stroke.Color = Color3.fromRGB(60, 60, 60)
+    
+    local Background = Instance.new("Frame", SliderFrame)
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundTransparency = 0.5
+    Background.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    local CornerBackground = Instance.new("UICorner", Background)
+    CornerBackground.CornerRadius = UDim.new(0, 6)
+
     local Label = Instance.new("TextLabel", SliderFrame)
     Label.Size = UDim2.new(1, 0, 0, 20)
     Label.Text = title .. ": " .. default
@@ -198,14 +214,14 @@ function UILib.Tab:CreateSlider(title, min, max, default, callback)
     Label.TextSize = 14
     Label.BackgroundTransparency = 1
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    
+
     local Bar = Instance.new("Frame", SliderFrame)
     Bar.Size = UDim2.new(1, 0, 0, 10)
     Bar.Position = UDim2.new(0, 0, 0, 25)
-    Bar.BackgroundTransparency = 1 -- Bar background is also transparent
+    Bar.BackgroundTransparency = 1 
 
     local Fill = Instance.new("Frame", Bar)
-    Fill.Size = UDim2.new(default / max, 0, 1, 0) -- Initial Fill Size
+    Fill.Size = UDim2.new(default / max, 0, 1, 0)
     Fill.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
 
     local Handle = Instance.new("Frame", Bar)
@@ -219,26 +235,31 @@ function UILib.Tab:CreateSlider(title, min, max, default, callback)
     local CornerHandle = Instance.new("UICorner", Handle)
     CornerHandle.CornerRadius = UDim.new(0, 6)
 
-    local function updateSlider(position)
-        local percent = math.clamp(position.X / Bar.AbsoluteSize.X, 0, 1)
-        local value = math.floor(min + (max - min) * percent)
-        Label.Text = title .. ": " .. value
-        Handle.Position = UDim2.new(percent, -5, 0, 0)
-        Fill.Size = UDim2.new(percent, 0, 1, 0)
-        if callback then
-            callback(value)
-        end
-    end
+    local dragging = false
 
-    Bar.InputBegan:Connect(function(input)
+    Handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            updateSlider(input.Position)
+            dragging = true
         end
     end)
 
-    Bar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            updateSlider(input.Position)
+    Handle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local position = input.Position
+            local percent = math.clamp((position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
+            local value = math.floor(min + (max - min) * percent)
+            Label.Text = title .. ": " .. value
+            Handle.Position = UDim2.new(percent, -5, 0, 0)
+            Fill.Size = UDim2.new(percent, 0, 1, 0)
+            if callback then
+                callback(value)
+            end
         end
     end)
 end
