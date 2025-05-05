@@ -9,7 +9,7 @@ function UILib:CreateWindow(name, parent)
     ScreenGui.Parent = parent or game:GetService("CoreGui")
 
     local Window = Instance.new("Frame", ScreenGui)
-    Window.Size = UDim2.new(0, 650, 0, 500)
+    Window.Size = UDim2.new(0, 700, 0, 600)
     Window.Position = UDim2.new(0, 10, 0, 10)
     Window.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     Window.Active = true
