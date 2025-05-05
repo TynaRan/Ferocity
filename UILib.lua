@@ -184,7 +184,7 @@ function UILib.Tab:CreateButton(name, callback)
         end
     end)
 end
-function UILib.Tab:CreateSlider(title, min, max, default, callback)
+function UILib.Tab:CreateInput(title, placeholder, callback)
     if not self.Page:FindFirstChild("UIListLayout") then
         local Layout = Instance.new("UIListLayout", self.Page)
         Layout.FillDirection = Enum.FillDirection.Vertical
@@ -192,74 +192,30 @@ function UILib.Tab:CreateSlider(title, min, max, default, callback)
         Layout.SortOrder = Enum.SortOrder.LayoutOrder
     end
 
-    local SliderFrame = Instance.new("Frame", self.Page)
-    SliderFrame.Size = UDim2.new(1, 0, 0, 50)
-    SliderFrame.BackgroundTransparency = 1
+    local InputFrame = Instance.new("Frame", self.Page)
+    InputFrame.Size = UDim2.new(1, 0, 0, 40)
+    InputFrame.BackgroundTransparency = 1
 
-    local Stroke = Instance.new("UIStroke", SliderFrame)
+    local Stroke = Instance.new("UIStroke", InputFrame)
     Stroke.Color = Color3.fromRGB(60, 60, 60)
-    
-    local Background = Instance.new("Frame", SliderFrame)
-    Background.Size = UDim2.new(1, 0, 1, 0)
-    Background.BackgroundTransparency = 0.5
-    Background.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    local CornerBackground = Instance.new("UICorner", Background)
-    CornerBackground.CornerRadius = UDim.new(0, 6)
 
-    local Label = Instance.new("TextLabel", SliderFrame)
-    Label.Size = UDim2.new(1, 0, 0, 20)
-    Label.Text = title .. ": " .. default
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.Code
-    Label.TextSize = 14
-    Label.BackgroundTransparency = 1
-    Label.TextXAlignment = Enum.TextXAlignment.Left
+    local Corner = Instance.new("UICorner", InputFrame)
+    Corner.CornerRadius = UDim.new(0, 6)
 
-    local Bar = Instance.new("Frame", SliderFrame)
-    Bar.Size = UDim2.new(1, 0, 0, 10)
-    Bar.Position = UDim2.new(0, 0, 0, 25)
-    Bar.BackgroundTransparency = 1 
+    local InputField = Instance.new("TextBox", InputFrame)
+    InputField.Size = UDim2.new(1, 0, 1, 0)
+    InputField.BackgroundTransparency = 1
+    InputField.Text = ""
+    InputField.PlaceholderText = placeholder
+    InputField.Font = Enum.Font.Code
+    InputField.TextSize = 14
+    InputField.TextColor3 = Color3.fromRGB(255, 255, 255)
+    InputField.TextXAlignment = Enum.TextXAlignment.Left
+    InputField.ClearTextOnFocus = false
 
-    local Fill = Instance.new("Frame", Bar)
-    Fill.Size = UDim2.new(default / max, 0, 1, 0)
-    Fill.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-
-    local Handle = Instance.new("Frame", Bar)
-    Handle.Size = UDim2.new(0, 10, 1, 0)
-    Handle.Position = UDim2.new(default / max, -5, 0, 0)
-    Handle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-
-    local StrokeHandle = Instance.new("UIStroke", Handle)
-    StrokeHandle.Color = Color3.fromRGB(60, 60, 60)
-
-    local CornerHandle = Instance.new("UICorner", Handle)
-    CornerHandle.CornerRadius = UDim.new(0, 6)
-
-    local dragging = false
-
-    Handle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-        end
-    end)
-
-    Handle.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local position = input.Position
-            local percent = math.clamp((position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
-            local value = math.floor(min + (max - min) * percent)
-            Label.Text = title .. ": " .. value
-            Handle.Position = UDim2.new(percent, -5, 0, 0)
-            Fill.Size = UDim2.new(percent, 0, 1, 0)
-            if callback then
-                callback(value)
-            end
+    InputField.FocusLost:Connect(function(enterPressed)
+        if enterPressed and callback then
+            callback(InputField.Text)
         end
     end)
 end
