@@ -221,12 +221,15 @@ TabMisc:CreateInput("Set Speed", "Enter speed value...", function(v)
         notify("New Speed: " .. speedValue)
     end
 end)
+local plr = game.Players.LocalPlayer
+repeat task.wait() until plr.Character
+local playerRoot = plr.Character:FindFirstChild("HumanoidRootPart")
+
 TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
     if state then
         notify("Scrap collection enabled")
 
         while state do
-            local playerRoot = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
             if playerRoot then
                 local closestMaterial = nil
                 local closestDistance = math.huge
@@ -242,7 +245,7 @@ TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
                 end
 
                 if closestMaterial then
-                    playerRoot.CFrame = closestMaterial.CFrame
+                    closestMaterial.CFrame = playerRoot.CFrame
                     for _, prompt in pairs(closestMaterial:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
                             fireproximityprompt(prompt)
