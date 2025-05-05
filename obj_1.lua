@@ -340,7 +340,6 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
     else
         notify("Fly disabled")
         vfly = false
-        humanoid.PlatformStand = false
             
         local root = getRoot(Players.LocalPlayer.Character)
         if root then
@@ -351,9 +350,9 @@ TabMisc:CreateCheckbox("Fly (IY)", function(state)
                 root:FindFirstChild(gyroHandlerName):Destroy()
             end
         end
-
         if mfly1 then mfly1:Disconnect() end
         if mfly2 then mfly2:Disconnect() end
+        humanoid.PlatformStand = false
     end
 end)
 local plr = game.Players.LocalPlayer
@@ -408,5 +407,134 @@ TabAuto:CreateCheckbox("Quick Scrap Collection", function(state)
                 notify("Teleported back to original position")
             end
         end
+    end
+end)
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local camera = workspace.CurrentCamera
+
+local function getRoot(character)
+    return character and character:FindFirstChild("HumanoidRootPart")
+end
+
+local function getTarget()
+    local origin = camera.CFrame.Position
+    local direction = camera.CFrame.LookVector * 1000
+    local params = RaycastParams.new()
+    local playerCharacters = {}
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character then
+            table.insert(playerCharacters, player.Character)
+        end
+    end
+
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    params.FilterDescendantsInstances = playerCharacters
+    params.IgnoreWater = true
+
+    local result = workspace:Raycast(origin, direction, params)
+    if result and result.Instance and result.Instance.Parent then
+        local targetModel = result.Instance.Parent
+        if targetModel:FindFirstChild("HumanoidRootPart") and targetModel:FindFirstChild("Humanoid") then
+            return targetModel
+        end
+    end
+    return nil
+end
+
+local function drawCrosshair()
+    local gui = Instance.new("ScreenGui")
+    gui.Parent = game.Players.LocalPlayer.PlayerGui
+
+    local size = 20
+
+    local vertical = Instance.new("Frame")
+    vertical.Parent = gui
+    vertical.AnchorPoint = Vector2.new(0.5, 0.5)
+    vertical.Position = UDim2.new(0.5, 0, 0.5, 0)
+    vertical.Size = UDim2.new(0, 2, 0, size)
+    vertical.BackgroundColor3 = Color3.new(1, 0, 0)
+
+    local horizontal = Instance.new("Frame")
+    horizontal.Parent = gui
+    horizontal.AnchorPoint = Vector2.new(0.5, 0.5)
+    horizontal.Position = UDim2.new(0.5, 0, 0.5, 0)
+    horizontal.Size = UDim2.new(0, size, 0, 2)
+    horizontal.BackgroundColor3 = Color3.new(1, 0, 0)
+
+    return gui
+end
+
+local function createPresetLine()
+    local presetLine = Instance.new("Part")
+    presetLine.Size = Vector3.new(0.2, 0.2, 100)
+    presetLine.Anchored = true
+    presetLine.CanCollide = false
+    presetLine.Color = Color3.fromRGB(255, 0, 0)
+    presetLine.Material = Enum.Material.Neon
+    presetLine.Parent = workspace
+    return presetLine
+end
+
+local crosshairGui = drawCrosshair()
+local presetLine = createPresetLine()
+
+TabMisc:CreateCheckbox("Stable Camera", function(state)
+    local player = game.Players.LocalPlayer
+    if state then
+        RunService.RenderStepped:Connect(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                camera.CameraSubject = player.Character:FindFirstChild("HumanoidRootPart")
+                camera.CameraType = Enum.CameraType.Custom
+                camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, camera.Focus.Position), 0.2)
+            end
+        end)
+    end
+end)
+
+TabMisc:CreateCheckbox("Noclip", function(state)
+    local player = game.Players.LocalPlayer
+    if state then
+        RunService.Stepped:Connect(function()
+            if player.Character then
+                for _, part in pairs(player.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+TabMisc:CreateCheckbox("Aim NPC", function(state)
+    local aimConnection
+
+    if state then
+        crosshairGui.Enabled = true
+        presetLine.Transparency = 0
+        aimConnection = RunService.RenderStepped:Connect(function()
+            local target = getTarget()
+            if target then
+                camera.CFrame = CFrame.new(camera.CFrame.Position, target.HumanoidRootPart.Position)
+                presetLine.Position = (camera.CFrame.Position + target.HumanoidRootPart.Position) / 2
+                presetLine.CFrame = CFrame.lookAt(presetLine.Position, target.HumanoidRootPart.Position)
+            end
+        end)
+    else
+        if aimConnection then
+            aimConnection:Disconnect()
+        end
+        crosshairGui.Enabled = false
+        presetLine.Transparency = 1
+    end
+end)
+
+TabMisc:CreateCheckbox("Third-Person Reset(TEST)", function(state)
+    local player = game.Players.LocalPlayer
+    if state then
+        camera.CameraSubject = player.Character:FindFirstChildWhichIsA("Humanoid")
+        camera.CameraType = Enum.CameraType.Custom
     end
 end)
