@@ -536,7 +536,7 @@ TabMisc:CreateCheckbox("Third-Person Stable Camera", function(state)
         RunService.RenderStepped:Connect(function()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 local root = player.Character:FindFirstChild("HumanoidRootPart")
-                cameraPart.Position = root.Position - root.CFrame.LookVector * 3 + Vector3.new(0, 2, 0)
+                cameraPart.Position = root.Position - root.CFrame.LookVector * 3 + Vector3.new(0, 4, 0)
                 camera.CameraSubject = cameraPart
                 camera.CameraType = Enum.CameraType.Custom
                 camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, camera.Focus.Position), 0.2)
