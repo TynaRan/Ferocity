@@ -200,7 +200,7 @@ end)
 local function highlightBedObjects()
     while espBed do
         for _, obj in pairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and string.find(obj.Name, "Bed") then
+            if obj:IsA("Model") and string.find(obj.Name, "base") then
                 notify("ESP Active: " .. obj.Name)
                 if not obj:FindFirstChild("Highlight") then
                     local h = Instance.new("Highlight")
@@ -216,7 +216,7 @@ local function highlightBedObjects()
     end
 end
 
-TabESP:CreateCheckbox("ESP: Bed Objects", function(state)
+TabESP:CreateCheckbox("ESP: Bed", function(state)
     espBed = state
     notify(state and "Bed ESP Enabled" or "Bed ESP Disabled")
     if espBed then
