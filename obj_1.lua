@@ -170,25 +170,43 @@ TabAuto:CreateCheckbox("Auto Fire ProximityPrompt", function(state)
         notify("fire disabled")
     end
 end)
-local function highlightRootObjects()
+local function highlightMovingObjects()
     while espRoot do
-        for _, obj in pairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and obj:FindFirstChild("HumanoidRootPart") then
-            
-                if not obj:FindFirstChild("Highlight") then
-                    local h = Instance.new("Highlight")
-                    h.Parent = obj
-                    h.FillColor = Color3.fromRGB(0, 0, 255)
-                    h.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    h.FillTransparency = 0.5
-                    h.OutlineTransparency = 0
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") and not obj.Anchored then
+                if obj.AssemblyLinearVelocity.Magnitude > 0.1 then
+                    if not obj:FindFirstChild("Highlight") then
+                        local h = Instance.new("Highlight")
+                        h.Parent = obj
+                        h.FillColor = Color3.fromRGB(0, 0, 255)
+                        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        h.FillTransparency = 0.5
+                        h.OutlineTransparency = 0
+                    end
+
+                    if not obj:FindFirstChild("NameBoard") then
+                        local billboard = Instance.new("BillboardGui")
+                        billboard.Name = "NameBoard"
+                        billboard.Size = UDim2.new(0, 100, 0, 30)
+                        billboard.StudsOffset = Vector3.new(0, 2, 0)
+                        billboard.Parent = obj
+
+                        local textLabel = Instance.new("TextLabel", billboard)
+                        textLabel.Size = UDim2.new(1, 0, 1, 0)
+                        textLabel.BackgroundTransparency = 1
+                        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        textLabel.TextStrokeTransparency = 0
+                        textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        textLabel.Font = Enum.Font.Code
+                        textLabel.TextSize = 16
+                        textLabel.Text = obj.Name
+                    end
                 end
             end
         end
         task.wait(1)
     end
 end
-
 TabESP:CreateCheckbox("ESP: All RootPart Objects", function(state)
     espRoot = state
     notify(state and "RootPart ESP Enabled" or "RootPart ESP Disabled")
@@ -201,21 +219,41 @@ local function highlightBedObjects()
     while espBed do
         for _, obj in pairs(workspace:GetChildren()) do
             if obj:IsA("Model") and string.find(obj.Name, "base") then
-                notify("ESP Active: " .. obj.Name)
-                if not obj:FindFirstChild("Highlight") then
-                    local h = Instance.new("Highlight")
-                    h.Parent = obj
-                    h.FillColor = Color3.fromRGB(255, 165, 0)
-                    h.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    h.FillTransparency = 0.3
-                    h.OutlineTransparency = 0
+                local parentObj = obj.Parent
+                if parentObj and parentObj:IsA("Model") and string.find(parentObj.Name, "Bed") then
+                    notify("ESP Active: " .. obj.Name)
+                    if not obj:FindFirstChild("Highlight") then
+                        local h = Instance.new("Highlight")
+                        h.Parent = obj
+                        h.FillColor = Color3.fromRGB(255, 165, 0)
+                        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        h.FillTransparency = 0.3
+                        h.OutlineTransparency = 0
+                    end
+
+                    if not obj:FindFirstChild("NameBoard") then
+                        local billboard = Instance.new("BillboardGui")
+                        billboard.Name = "NameBoard"
+                        billboard.Size = UDim2.new(0, 100, 0, 30)
+                        billboard.StudsOffset = Vector3.new(0, 2, 0)
+                        billboard.Parent = obj
+
+                        local textLabel = Instance.new("TextLabel", billboard)
+                        textLabel.Size = UDim2.new(1, 0, 1, 0)
+                        textLabel.BackgroundTransparency = 1
+                        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        textLabel.TextStrokeTransparency = 0
+                        textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        textLabel.Font = Enum.Font.Code
+                        textLabel.TextSize = 16
+                        textLabel.Text = obj.Name
+                    end
                 end
             end
         end
         task.wait(1)
     end
 end
-
 TabESP:CreateCheckbox("ESP: Bed", function(state)
     espBed = state
     notify(state and "Bed ESP Enabled" or "Bed ESP Disabled")
