@@ -15,6 +15,8 @@ function UILib:CreateWindow(name, parent)
     Window.Active = true
     Window.Draggable = true
 
+    Instance.new("UICorner", Window).CornerRadius = UDim.new(0, 6)
+
     local Title = Instance.new("TextLabel", Window)
     Title.Size = UDim2.new(1, 0, 0, 30)
     Title.Position = UDim2.new(0, 0, 0, 0)
@@ -26,11 +28,45 @@ function UILib:CreateWindow(name, parent)
     Title.BackgroundTransparency = 1
     Title.TextXAlignment = Enum.TextXAlignment.Left
 
-    Instance.new("UICorner", Window).CornerRadius = UDim.new(0, 6)
+    local ToggleShowUI = Instance.new("TextButton", Window)
+    ToggleShowUI.Size = UDim2.new(0, 90, 0, 30)
+    ToggleShowUI.Position = UDim2.new(0, 5, 0, 40)
+    ToggleShowUI.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleShowUI.Text = "Hide UI"
+    ToggleShowUI.Font = Enum.Font.Code
+    ToggleShowUI.TextSize = 14
+    ToggleShowUI.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    Instance.new("UICorner", ToggleShowUI).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ToggleShowUI).Color = Color3.fromRGB(100, 100, 100)
+
+    local ToggleLockUI = Instance.new("TextButton", Window)
+    ToggleLockUI.Size = UDim2.new(0, 90, 0, 30)
+    ToggleLockUI.Position = UDim2.new(0, 5, 0, 80)
+    ToggleLockUI.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleLockUI.Text = "Unlock UI"
+    ToggleLockUI.Font = Enum.Font.Code
+    ToggleLockUI.TextSize = 14
+    ToggleLockUI.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    Instance.new("UICorner", ToggleLockUI).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ToggleLockUI).Color = Color3.fromRGB(100, 100, 100)
+
+    ToggleShowUI.MouseButton1Click:Connect(function()
+        Window.Visible = not Window.Visible
+        ToggleShowUI.Text = Window.Visible and "Hide UI" or "Show UI"
+    end)
+
+    local locked = false
+    ToggleLockUI.MouseButton1Click:Connect(function()
+        locked = not locked
+        Window.Active = not locked
+        ToggleLockUI.Text = locked and "Lock UI" or "Unlock UI"
+    end)
 
     local Tabs = Instance.new("ScrollingFrame", Window)
     Tabs.Size = UDim2.new(0, 120, 1, -35)
-    Tabs.Position = UDim2.new(0, 0, 0,35) 
+    Tabs.Position = UDim2.new(0, 0, 0, 35)
     Tabs.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Tabs.CanvasSize = UDim2.new(0, 0, 0, 0)
     Tabs.ScrollBarThickness = 6
@@ -41,7 +77,96 @@ function UILib:CreateWindow(name, parent)
 
     local Functions = Instance.new("ScrollingFrame", Window)
     Functions.Size = UDim2.new(1, -125, 1, -35)
-    Functions.Position = UDim2.new(0, 125, 0, 35) 
+    Functions.Position = UDim2.new(0, 125, 0, 35)
+    Functions.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Functions.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Functions.ScrollBarThickness = 6
+    Functions.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+    Functions.ClipsDescendants = true
+
+    Instance.new("UIStroke", Functions).Color = Color3.fromRGB(60, 60, 60)
+
+    local LayoutTabs = Instance.new("UIListLayout", Tabs)
+    LayoutTabs.FillDirection = Enum.FillDirection.Vertical
+    LayoutTabs.Padding = UDim.new(0, 5)
+    LayoutTabs.SortOrder = Enum.SortOrder.LayoutOrder
+function UILib:CreateWindow(name, parent)
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = name or "UI"
+    ScreenGui.Parent = parent or game:GetService("CoreGui")
+
+    local Window = Instance.new("Frame", ScreenGui)
+    Window.Size = UDim2.new(0, 650, 0, 500)
+    Window.Position = UDim2.new(0, 10, 0, 10)
+    Window.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Window.Active = true
+    Window.Draggable = true
+
+    Instance.new("UICorner", Window).CornerRadius = UDim.new(0, 6)
+
+    local Title = Instance.new("TextLabel", Window)
+    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.Position = UDim2.new(0, 0, 0, 0)
+    Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    Title.Text = name or "windows"
+    Title.Font = Enum.Font.Code
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 20
+    Title.BackgroundTransparency = 1
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ToggleShowUI = Instance.new("TextButton", Window)
+    ToggleShowUI.Size = UDim2.new(0, 90, 0, 30)
+    ToggleShowUI.Position = UDim2.new(0, 10, 0, 40)
+    ToggleShowUI.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleShowUI.Text = "Hide UI"
+    ToggleShowUI.Font = Enum.Font.Code
+    ToggleShowUI.TextSize = 14
+    ToggleShowUI.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    Instance.new("UICorner", ToggleShowUI).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ToggleShowUI).Color = Color3.fromRGB(100, 100, 100)
+
+    local ToggleLockUI = Instance.new("TextButton", Window)
+    ToggleLockUI.Size = UDim2.new(0, 90, 0, 30)
+    ToggleLockUI.Position = UDim2.new(0, 10, 0, 80) 
+    ToggleLockUI.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleLockUI.Text = "Unlock UI"
+    ToggleLockUI.Font = Enum.Font.Code
+    ToggleLockUI.TextSize = 14
+    ToggleLockUI.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    Instance.new("UICorner", ToggleLockUI).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ToggleLockUI).Color = Color3.fromRGB(100, 100, 100)
+    ToggleShowUI.TextXAlignment = Enum.TextXAlignment.Left
+    ToggleLockUI.TextXAlignment = Enum.TextXAlignment.Left
+
+    ToggleShowUI.MouseButton1Click:Connect(function()
+        Window.Visible = not Window.Visible
+        ToggleShowUI.Text = Window.Visible and "Hide UI" or "Show UI"
+    end)
+
+    local locked = false
+    ToggleLockUI.MouseButton1Click:Connect(function()
+        locked = not locked
+        Window.Active = not locked
+        ToggleLockUI.Text = locked and "Lock UI" or "Unlock UI"
+    end)
+
+    local Tabs = Instance.new("ScrollingFrame", Window)
+    Tabs.Size = UDim2.new(0, 120, 1, -35)
+    Tabs.Position = UDim2.new(0, 0, 0, 35)
+    Tabs.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Tabs.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Tabs.ScrollBarThickness = 6
+    Tabs.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+    Tabs.ClipsDescendants = true
+
+    Instance.new("UIStroke", Tabs).Color = Color3.fromRGB(60, 60, 60)
+
+    local Functions = Instance.new("ScrollingFrame", Window)
+    Functions.Size = UDim2.new(1, -125, 1, -35)
+    Functions.Position = UDim2.new(0, 125, 0, 35)
     Functions.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Functions.CanvasSize = UDim2.new(0, 0, 0, 0)
     Functions.ScrollBarThickness = 6
@@ -70,7 +195,6 @@ function UILib:CreateWindow(name, parent)
     UILib.Window.Tabs = Tabs
     UILib.Window.Functions = Functions
 end
-
 function UILib.Window:CreateTab(name)
     local Button = Instance.new("TextButton", self.Tabs)
     Button.Size = UDim2.new(0.9, 0, 0, 40)
@@ -218,5 +342,32 @@ function UILib.Tab:CreateInput(title, placeholder, callback)
             callback(InputField.Text)
         end
     end)
+end
+function UILib.Tab:CreateLabel(text)
+    if not self.Page:FindFirstChild("UIListLayout") then
+        local Layout = Instance.new("UIListLayout", self.Page)
+        Layout.FillDirection = Enum.FillDirection.Vertical
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    end
+
+    local LabelFrame = Instance.new("Frame", self.Page)
+    LabelFrame.Size = UDim2.new(1, 0, 0, 40)
+    LabelFrame.BackgroundTransparency = 1
+
+    local Stroke = Instance.new("UIStroke", LabelFrame)
+    Stroke.Color = Color3.fromRGB(60, 60, 60)
+
+    local Corner = Instance.new("UICorner", LabelFrame)
+    Corner.CornerRadius = UDim.new(0, 6)
+
+    local Label = Instance.new("TextLabel", LabelFrame)
+    Label.Size = UDim2.new(1, 0, 1, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 14
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextXAlignment = Enum.TextXAlignment.Left
 end
 return UILib
