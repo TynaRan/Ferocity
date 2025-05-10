@@ -283,4 +283,67 @@ function UILib.Tab:CreateLabel(text)
     Label.TextColor3 = Color3.fromRGB(255, 255, 255)
     Label.TextXAlignment = Enum.TextXAlignment.Left
 end
+UILib.Notifications = {}
+
+function UILib:Notify(message, duration)
+    local ScreenGui = game:GetService("CoreGui"):FindFirstChild("NotificationGui") or Instance.new("ScreenGui", game:GetService("CoreGui"))
+    ScreenGui.Name = "NotificationGui"
+
+    local textSize = #message * 8
+    local NotificationFrame = Instance.new("Frame", ScreenGui)
+    NotificationFrame.Size = UDim2.new(0, math.max(120, textSize), 0, 0)
+    NotificationFrame.Position = UDim2.new(0, 15, 0, 10 + (#UILib.Notifications * 40))
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+
+    Instance.new("UICorner", NotificationFrame).CornerRadius = UDim.new(0, 6)
+    local Stroke = Instance.new("UIStroke", NotificationFrame)
+    Stroke.Color = Color3.fromRGB(100, 100, 100)
+
+    local Label = Instance.new("TextLabel", NotificationFrame)
+    Label.Size = UDim2.new(1, 0, 1, -5)
+    Label.Position = UDim2.new(0, 0, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = message
+    Label.Font = Enum.Font.Code
+    Label.TextSize = 12
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ProgressBar = Instance.new("Frame", NotificationFrame)
+    ProgressBar.Size = UDim2.new(1, 0, 0, 2)
+    ProgressBar.Position = UDim2.new(0, 0, 1, -2)
+    ProgressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+    Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 2)
+
+    NotificationFrame:TweenSize(UDim2.new(0, math.max(120, textSize), 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quint, 0.3, true) 
+
+    table.insert(UILib.Notifications, NotificationFrame)
+
+    local step = 0
+    local totalSteps = duration * 60
+    local connection
+    connection = game:GetService("RunService").RenderStepped:Connect(function()
+        step = step + 1
+        ProgressBar.Size = UDim2.new(1 - (step / totalSteps), 0, 0, 2)
+        if step >= totalSteps then
+            connection:Disconnect()
+            NotificationFrame:TweenSize(UDim2.new(0, math.max(120, textSize), 0, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quint, 0.3, true, function()
+                NotificationFrame:Destroy()
+                table.remove(UILib.Notifications, 1)
+                for index, notif in ipairs(UILib.Notifications) do
+                    notif.Position = UDim2.new(0, 15, 0, (index - 1) * 40 + 1)
+                end
+            end)
+        end
+    end)
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://4590657391"
+    sound.PlaybackSpeed, sound.Volume, sound.Parent = 1, 3, workspace
+    sound:Play()
+    
+    task.wait(1)
+    sound:Destroy()
+end
 return UILib
